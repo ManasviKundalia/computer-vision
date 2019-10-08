@@ -57,6 +57,10 @@ def window():
     button_halfNhalf.move(70, 170)
     button_halfNhalf.clicked.connect(on_click_halfnhalf)
 
+    button_border = QPushButton(w)
+    button_border.setText("Diamond Border")
+    button_border.move(70,200)
+    button_border.clicked.connect(on_click_border_pattern)
 
     w.setWindowTitle("My App")
     w.show()
@@ -88,6 +92,10 @@ def on_click_mirror():
 @pyqtSlot()
 def on_click_halfnhalf():
     vp.halfNhalf = not(vp.halfNhalf)
+
+@pyqtSlot()
+def on_click_border_pattern():
+    vp.patternBorder = not(vp.patternBorder)
 
 if __name__ == '__main__':
     window()

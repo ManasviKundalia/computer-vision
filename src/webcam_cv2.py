@@ -8,6 +8,41 @@ import time
 from os import listdir
 import numpy as np
 
+
+def diamond_mask(img_shape):
+    mask = np.ones((img_shape[0], img_shape[1]))
+    x_mid = int(img_shape[0]/2)
+    y_mid = int(img_shape[1]/2)
+
+    #diamond pattern?
+
+    slope = y_mid/x_mid    #y=slope*x+c  ---> x = 0 y=y_mid x=x_mid y = 0
+    for i in range(x_mid):
+        j = 0
+        while(j<=y_mid) and (j<=abs(slope*i-y_mid)):
+            mask[i][j] = 0
+            j+=1
+
+    for i in range(x_mid, img_shape[0]):
+        j = 0
+        while(j<=y_mid) and (j<=slope*(i-x_mid)):
+            mask[i][j] = 0
+            j+=1
+
+    for i in range(x_mid):
+        j = int(slope*i) + y_mid
+        while(j<img_shape[1]):
+            mask[i][j] = 0
+            j+=1
+
+    for i in range(x_mid, img_shape[0]):
+        j = int(slope*i) + y_mid
+        while(j<img_shape[1]):
+            mask[i][j] = 0
+            j+=1
+
+    return mask
+
 class VideoProcessing:
 
     def __init__(self):
@@ -16,7 +51,7 @@ class VideoProcessing:
         self.mirror = False
         self.random = False
         self.halfNhalf = False
-
+        self.patternBorder = False
         #img
         self.img = None
         self.img_directory = "/home/manasvi/Pictures/mywebcam/"
@@ -29,15 +64,17 @@ class VideoProcessing:
             if self.mirror:
                 self.img = cv2.flip(self.img, 1)
 
-            if self.gray_scale:
-                self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-
             if self.random:
                 self.img = np.rot90(self.img)
 
             if self.halfNhalf:
                 self.half_n_half()
 
+            if self.patternBorder:
+                self.pattern_boundry()
+
+            if self.gray_scale:
+                self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
             cv2.imshow('my webcam', self.img)
             if cv2.waitKey(1) == 27:
                 break  # esc to quit
@@ -55,6 +92,18 @@ class VideoProcessing:
 
         #invert the first half
         self.img[0:x_mid][:][:] = 255-self.img[0:x_mid][:][:]
+
+    def pattern_boundry(self):
+        mask = diamond_mask(self.img.shape)
+        mask_3d = np.ones(self.img.shape)
+        mask_3d[:, :, 0] = mask
+        mask_3d[:, :, 1] = mask
+        mask_3d[:, :, 2] = mask
+        print(mask_3d.shape)
+        print(self.img[0,0,0])
+        #self.img = np.multiply(np.array(self.img), np.array(mask_3d))
+        self.img = np.multiply(np.array(self.img),np.ones(self.img.shape, dtype=np.int16))
+        print(self.img[0,0,0])
 
     def capture_image(self):
         images = listdir(self.img_directory)
