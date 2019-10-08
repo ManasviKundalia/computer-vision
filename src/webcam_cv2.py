@@ -11,9 +11,13 @@ import numpy as np
 class VideoProcessing:
 
     def __init__(self):
+        #filters
         self.gray_scale = False
         self.mirror = False
         self.random = False
+        self.halfNhalf = False
+
+        #img
         self.img = None
         self.img_directory = "/home/manasvi/Pictures/mywebcam/"
 
@@ -31,11 +35,26 @@ class VideoProcessing:
             if self.random:
                 self.img = np.rot90(self.img)
 
+            if self.halfNhalf:
+                self.half_n_half()
+
             cv2.imshow('my webcam', self.img)
             if cv2.waitKey(1) == 27:
                 break  # esc to quit
 
         cv2.destroyAllWindows()
+
+    def add_black_line(self):
+        img_shape = self.img.shape
+        x_mid = int(img_shape[0]/2)
+        self.img[x_mid][:][:] = 0
+
+    def half_n_half(self):
+        img_shape = self.img.shape
+        x_mid = int(img_shape[0]/2)
+
+        #invert the first half
+        self.img[0:x_mid][:][:] = 255-self.img[0:x_mid][:][:]
 
     def capture_image(self):
         images = listdir(self.img_directory)
