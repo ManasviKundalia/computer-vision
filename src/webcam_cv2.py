@@ -36,7 +36,7 @@ def diamond_mask(img_shape):
             j+=1
 
     for i in range(x_mid, img_shape[0]):
-        j = int(slope*i) + y_mid
+        j = 3*y_mid - int(slope*i) # x =x_mid y = 2*y_mid x = 2*x_mid y=y_mid
         while(j<img_shape[1]):
             mask[i][j] = 0
             j+=1
@@ -101,9 +101,10 @@ class VideoProcessing:
         mask_3d[:, :, 2] = mask
         print(mask_3d.shape)
         print(self.img[0,0,0])
-        #self.img = np.multiply(np.array(self.img), np.array(mask_3d))
-        self.img = np.multiply(np.array(self.img),np.ones(self.img.shape, dtype=np.int16))
-        print(self.img[0,0,0])
+        self.img = np.multiply(np.array(self.img), np.array(mask_3d, dtype=type(self.img[0][0][0])))
+        #print(type(self.img[0][0][0]))
+        #self.img = np.multiply(np.array(self.img),np.ones(self.img.shape, dtype=type(self.img[0][0][0])))
+        #print(self.img[0,0,0])
 
     def capture_image(self):
         images = listdir(self.img_directory)
