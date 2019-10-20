@@ -5,6 +5,9 @@ import os
 import cv2
 from copy import deepcopy
 import numpy as np
+import random
+
+random.seed(32)
 
 def read_images(directory, label = None):
     """
@@ -63,6 +66,23 @@ def normalize_img_dataset_by_cropping(imgs, size=(244,244)):
     return normalized_imgs
 
 
+def resize_img(img, img_dim=(244,244)):
+    return cv2.resize(img, img_dim)
+
+
+def normalize_by_resize(imgs, size=(244,244)):
+    normalized_imgs = list(map(lambda x: resize_img(x, size), imgs))
+    return normalized_imgs
+
+
+def shuffle_dataset(imgs, labels):
+    shuffled_indices = list(range(len(imgs)))
+    random.shuffle(shuffled_indices)
+    shuffled_imgs = [imgs[i] for i in shuffled_indices]
+    shuffled_labels = [labels[i] for i in shuffled_indices]
+    return shuffled_imgs, shuffled_labels
+
+
 if __name__=='__main__':
     print("Testing normalize imgs:")
     img_path = "../datasets/smile-dataset/smile/7.jpg"
@@ -72,8 +92,14 @@ if __name__=='__main__':
     cv2.imwrite("/home/manasvi/Pictures/orignal1.jpg",img)
     cv2.waitKey(0)
 
-    img_norm = normalize_img_dataset([img])[0]
+    img_norm = normalize_img_dataset_by_cropping([img])[0]
     print("Size of normalized img: ", img_norm.shape)
     cv2.imshow('image', img)
     cv2.imwrite("/home//manasvi/Pictures/norm1.jpg", img_norm)
+    cv2.waitKey(0)
+
+    img_norm = normalize_by_resize([img])[0]
+    print("Size of normalized img: ", img_norm.shape)
+    cv2.imshow('image', img)
+    cv2.imwrite("/home//manasvi/Pictures/norm2.jpg", img_norm)
     cv2.waitKey(0)

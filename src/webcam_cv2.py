@@ -99,8 +99,6 @@ class VideoProcessing:
         mask_3d[:, :, 0] = mask
         mask_3d[:, :, 1] = mask
         mask_3d[:, :, 2] = mask
-        print(mask_3d.shape)
-        print(self.img[0,0,0])
         self.img = np.multiply(np.array(self.img), np.array(mask_3d, dtype=type(self.img[0][0][0])))
         #print(type(self.img[0][0][0]))
         #self.img = np.multiply(np.array(self.img),np.ones(self.img.shape, dtype=type(self.img[0][0][0])))
