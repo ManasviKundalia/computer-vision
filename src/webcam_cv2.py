@@ -7,6 +7,25 @@ import cv2
 import time
 from os import listdir
 import numpy as np
+import json
+import h5py
+import pickle as pk
+from keras.models import load_model
+from classifiers.dataset_loader import normalize_by_resize
+from classifiers.classifier_utils import build_model_vgg16
+
+def fix_layer0(filename, batch_input_shape, dtype):
+    with h5py.File(filename, 'r+') as f:
+        print(f.attrs.keys())
+        model_config = json.loads(f.attrs['model_config'].decode('utf-8'))
+        print(model_config['config'])
+        print(model_config.keys())
+        # print(model_config['config']['layers'][0]['config']['batch_input_shape'])
+        layer0 = model_config['config']['layers'][0]['config']
+        layer0['batch_input_shape'] = batch_input_shape
+        layer0['dtype'] = dtype
+        print(model_config['config']['layers'][0]['config']['batch_input_shape'])
+        f.attrs['model_config'] = json.dumps(model_config).encode('utf-8')
 
 
 def diamond_mask(img_shape):
@@ -46,15 +65,22 @@ def diamond_mask(img_shape):
 class VideoProcessing:
 
     def __init__(self):
-        #filters
+        # filters
         self.gray_scale = False
         self.mirror = False
         self.random = False
         self.halfNhalf = False
         self.patternBorder = False
-        #img
+        self.smile = False
+        # img
         self.img = None
         self.img_directory = "/home/manasvi/Pictures/mywebcam/"
+        # models
+
+        # fix_layer0("/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16.bin", [None, 244, 244, 3], 'float32')
+        # self.smile_model = load_model("./models/vgg16.bin")
+        # self.smile_model = pk.load(open("/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16.h5",'rb'))
+        self.smile_model = build_model_vgg16("/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16_weights.bin")
 
     def show_webcam(self):
         cam = cv2.VideoCapture(0)
@@ -75,6 +101,10 @@ class VideoProcessing:
 
             if self.gray_scale:
                 self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+
+            if self.smile:
+                self.predict_smile()
+
             cv2.imshow('my webcam', self.img)
             if cv2.waitKey(1) == 27:
                 break  # esc to quit
@@ -113,6 +143,15 @@ class VideoProcessing:
             img_no = images[-1]+1
         cv2.imwrite(self.img_directory+str(img_no)+".jpeg", self.img)
 
+    def predict_smile(self):
+        img_norm = normalize_by_resize([self.img], size=(224,224))
+        # print(np.array(img_norm).ndim, type(np.array(img_norm)))
+        # print(self.smile_model.summary())
+        smile_pred = self.smile_model.predict(np.array(img_norm))
+        # cv2.putText(img=self.img,  text="Score: "+str(smile_pred[0][0])+" , "+str(smile_pred[0][1]), org=(10,10), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+        #             fontScale=0.25, color=(255,0,0))
+        if smile_pred[0][0]>smile_pred[0][1]:
+            self.capture_image()
 
 def show_webcam_color(mirror=False):
     cam = cv2.VideoCapture(0)

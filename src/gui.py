@@ -62,6 +62,11 @@ def window():
     button_border.move(70,200)
     button_border.clicked.connect(on_click_border_pattern)
 
+    button_border = QPushButton(w)
+    button_border.setText("Smile please!")
+    button_border.move(70,230)
+    button_border.clicked.connect(on_click_smile)
+
     w.setWindowTitle("My App")
     w.show()
     sys.exit(app.exec_())
@@ -96,6 +101,10 @@ def on_click_halfnhalf():
 @pyqtSlot()
 def on_click_border_pattern():
     vp.patternBorder = not(vp.patternBorder)
+
+@pyqtSlot()
+def on_click_smile():
+    vp.smile = not(vp.smile)
 
 if __name__ == '__main__':
     window()
