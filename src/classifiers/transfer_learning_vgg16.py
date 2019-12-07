@@ -80,23 +80,26 @@ if tb:
                               write_graph=True)
     callbacks = [tensorboard]
 
-model_res.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model_res.compile(optimizer=SGD(lr=0.05, momentum=0.005, nesterov=True), loss='categorical_crossentropy', metrics=['accuracy'])
 
-train(model_res, np.array(imgs_train), labels_train, n_epochs=1, unfreeze_and_train=False, n_freeze_layers=15,
+train(model_res, np.array(imgs_train), labels_train, n_epochs=5, unfreeze_and_train=True, n_freeze_layers=15,
       callbacks=callbacks)
 
 print("Model performance on test data")
+    print(model_res.predict(np.array([imgs[i]])))
+    print(labels_cat[i])
+
+MODEL_NAME = "vgg16_3"
+
+model_path = '/home/manasvi/IdeaProjects/computer-vision/src/models/'+MODEL_NAME+'.bin'
+print("Saving model to :", model_path)
+model_res.save(model_path, include_optimizer=False)
+model_res.save_weights('/home/manasvi/IdeaProjects/computer-vision/src/models/'+MODEL_NAME+'.bin')
+pk.dump(model_res, open('/home/manasvi/IdeaProjects/computer-vision/src/models/'+MODEL_NAME+'.bin', 'wb'))
+
+
 print(model_res.evaluate(np.array(imgs_test), labels_test))
 
 for i in range(5):
     img_p = np.array([imgs[i]])
     print(img_p.shape, type(img_p))
-    print(model_res.predict(np.array([imgs[i]])))
-    print(labels_cat[i])
-
-# model_path = '/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16.bin'
-# print("Saving model to :", model_path)
-# model_res.save(model_path, include_optimizer=False)
-# model_res.save_weights('/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16_weights.bin')
-# pk.dump(model_res, open('/home/manasvi/IdeaProjects/computer-vision/src/models/vgg16_pk.bin', 'wb'))
-

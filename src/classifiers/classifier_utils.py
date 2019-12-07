@@ -51,11 +51,10 @@ def freeze_layers(model, n_l=None):
         model.layers[i].trainable = False
 
     boundry_layer_name = model.layers[n_layers].name
-    print(boundry_layer_name)
     if boundry_layer_name.find('block')!=-1:
         block_num = boundry_layer_name[:boundry_layer_name.find('_')+1]
         for i in range(n_layers):
-            print(block_num)
+
             if model.layers[i].name.find(block_num)!=-1:
                 model.layers[i].trainable = True
 
@@ -75,11 +74,12 @@ def train(model_, imgs, labels, n_epochs=1, unfreeze_and_train=False, n_freeze_l
     if unfreeze_and_train:
         total_epochs = 0
         while n_freeze_layers >= 7:
-            print(n_freeze_layers)
             model_ = unfreeze_and_train_fn(model_, n_freeze_layers)
             model_.fit(imgs, labels, verbose=True, batch_size=16, epochs=n_epochs+total_epochs, callbacks=callbacks, initial_epoch=total_epochs)
             n_freeze_layers -= 1
             total_epochs+=n_epochs
+        model_.fit(imgs, labels, verbose=True, batch_size=16, epochs=3*n_epochs+total_epochs, callbacks=callbacks, initial_epoch=total_epochs)
+
     else:
         model_.fit(imgs, labels, verbose=True, batch_size=16, epochs=n_epochs, callbacks=callbacks)
 
